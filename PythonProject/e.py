@@ -48,16 +48,16 @@ def delete():
     else:
         print("No matching row.")
 
-while True:
-    inputs =input('add or delete or save? ')
-    if inputs =='add':
-        add()
-    elif inputs =='delete':
-        delete()
-    elif inputs =='save':
-        pd.DataFrame(df).to_csv('ufo_sightings_scrubbed.csv')
-        break
-
+# while True:
+#     inputs =input('add or delete or save? ')
+#     if inputs =='add':
+#         add()
+#     elif inputs =='delete':
+#         delete()
+#     elif inputs =='save':
+#         pd.DataFrame(df).to_csv('ufo_sightings_scrubbed.csv')
+#         break
+#
 
 
 
@@ -96,10 +96,10 @@ for i in range(len(listofduration)):
         if listofduration[j] < listofduration[min]:
             min = j
     listofduration[i], listofduration[min] = listofduration[min], listofduration[i]
-
+print(listofduration[:-1])
 
 def bargraphoftheyearandtimeview():
-    years = [2010, 2011, 2012, 2013, 2014]
+    years = df['year'].unique()
     sightings = [df['year'].value_counts().get('2010', 0), df['year'].value_counts().get('2011', 0),
                  df['year'].value_counts().get('2012', 0), df['year'].value_counts().get('2013', 0),
                  df['year'].value_counts().get('2014', 0)]
@@ -112,7 +112,7 @@ def bargraphoftheyearandtimeview():
 
 
 def bargraphoftheyearandaveragesightingstimes():
-    years = [2010, 2011, 2012, 2013, 2014]
+    years = df['year'].unique()
     duration = []
     for year in years:
         durations = df[df["year"] == str(year)]["duration (seconds)"].astype(float)
@@ -177,24 +177,32 @@ def launch_data_viewer():
 def goofy():
     for widget in window.winfo_children():
         widget.destroy()
-    window.photos = PhotoImage(file="pp.png")  # Store as attribute to keep reference
+    window.photos = PhotoImage(file="pp.png")
     photozz = Label(window, image=window.photos)
     photozz.pack()
-    playsound("tuah.mp3")
 
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    sound_path = os.path.join(script_dir, "tuah.mp3")
+
+    playsound(sound_path)
 
 def show_menu():
+    for widget in window.winfo_children():
+        widget.destroy()
     btn1 = Button(window, text="Bar Graph of Sightings", font=("Arial", 14), command=bargraphoftheyearandtimeview)
     btn2 = Button(window, text="Avg Duration Bar Graph", font=("Arial", 14),
                   command=bargraphoftheyearandaveragesightingstimes)
     btn3 = Button(window, text="View Data", font=("Arial", 14), command=launch_data_viewer)
     btn4 = Button(window, text="goofy button", font=("Arial", 14), command=goofy)
-    btn5 = Button(window, text="Exit", font=("Arial", 14), command=exit)
-    btn1.pack(pady=10)
-    btn2.pack(pady=10)
-    btn3.pack(pady=10)
-    btn4.pack(pady=10)
-    btn5.pack(pady=10)
+    btn5 = Button(window, text="Back", font=("Arial", 14), command=show_menu)
+    btn6 = Button(window, text="Exit", font=("Arial", 14), command=exit)
+
+    btn1.pack(pady=30)
+    btn2.pack(pady=30)
+    btn3.pack(pady=30)
+    btn4.pack(pady=30)
+    btn5.pack(pady=30)
+    btn6.pack(pady=30)
 
 
 window = Tk()

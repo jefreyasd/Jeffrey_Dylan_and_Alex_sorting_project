@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tkinter import *
 from playsound import playsound
-
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 df = pd.read_csv("ufo_sightings_scrubbed.csv", dtype={0: str}, low_memory=False)
 
 if "comments" in df.columns:
@@ -101,31 +101,43 @@ for i in range(len(listofduration)):
 print(listofduration[:-1])
 
 def bargraphoftheyearandtimeview():
+    for widget in window.winfo_children():
+        widget.destroy()
+    show_menu()
+    fig, ax = plt.subplots()
+    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas.get_tk_widget().pack()
     years = df['year'].unique()
     sightings = []
     for year in years:
         avgduration = df['year'].value_counts().get(year, 0)
         sightings.append(avgduration)
-    plt.bar(years, sightings)
-    plt.title('UFO sightings and years')
-    plt.xlabel('years')
-    plt.ylabel('Ufo Sightings')
-    plt.show()
+    ax.bar(years, sightings)
+    ax.set_title('UFO Sightings by Year')
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Number of Sightings')
+    canvas.draw()
 
 
 def bargraphoftheyearandaveragesightingstimes():
+    for widget in window.winfo_children():
+        widget.destroy()
+    show_menu()
+    fig, ax = plt.subplots()
+    canvas = FigureCanvasTkAgg(fig, master=window)
+    canvas.get_tk_widget().pack()
     years = df['year'].unique()
     duration = []
     for year in years:
         durations = df[df["year"] == str(year)]["duration (seconds)"].astype(float)
         avgduration = durations.mean()
         duration.append(avgduration)
+    ax.bar(years, duration)
+    ax.set_title('average duration of UFO sightings and years')
+    ax.set_xlabel('years')
+    ax.set_ylabel('average duration of UFO sightings(seconds)')
+    canvas.draw()
 
-    plt.bar(years, duration)
-    plt.title('average duration of UFO sightings and years')
-    plt.xlabel('years')
-    plt.ylabel('average duration of UFO sightings(seconds)')
-    plt.show()
 
 
 def launch_data_viewer():
@@ -211,6 +223,7 @@ window.title("UFO sightings")
 img = PhotoImage(file="photo.png")
 photo = Label(window, image=img)
 photo.place(relx=0.5, rely=0.6, anchor='center')
+
 
 label = Label(window, text="UFO sightings", font=("arial", 24))
 

@@ -1,8 +1,3 @@
-
-
-
-
-
 import csv
 import os
 import pandas as pd
@@ -12,6 +7,12 @@ from playsound import playsound
 
 df = pd.read_csv("ufo_sightings_scrubbed.csv", dtype={0: str}, low_memory=False)
 
+if "comments" in df.columns:
+    df = df.drop('duration (hours/min)', axis=1)
+    df = df.drop('comments', axis=1)
+    df = df.drop('date posted', axis=1)
+    df = df.drop('latitude', axis=1)
+    df = df.drop('longitude ', axis=1)
 
 
 def add():
@@ -32,7 +33,9 @@ def add():
         'duration (seconds)': duratz
     }
 
-    df.to_csv('ufo_sightings_scrubbed.csv', index=False)
+    print(df)
+
+    df.to_csv('ufos.csv', index=False)
 def delete():
     global df
     datetime_val = input('input date time in this format YYYY-MM-DD HOUR:MINUTE:SECOND : ')
@@ -53,36 +56,39 @@ while True:
     elif inputs == 'delete':
         delete()
     elif inputs == 'save':
-        df.to_csv('ufo_sightings_scrubbed.csv', index=False)
+        df.to_csv('ufos.csv', index=False)
         break
 
 
-def load_and_process_df():
-    df = pd.read_csv("ufo_sightings_scrubbed.csv", dtype={0: str}, low_memory=False)
-    if "comments" in df.columns:
-        df = df.drop('duration (hours/min)', axis=1)
-        df = df.drop('comments', axis=1)
-        df = df.drop('date posted', axis=1)
-        df = df.drop('latitude', axis=1)
-        df = df.drop('longitude ', axis=1)
 
-    df = df[df['state'] == "ny"]
+df = pd.read_csv("ufos.csv", dtype={0: str}, low_memory=False)
+df = df.loc[df['state'] == "ny"]
 
-    df['year'] = df['datetime'].astype(str).str[:4]
-    df['month'] = df['datetime'].astype(str).str[5:7]
-    df['day'] = df['datetime'].astype(str).str[8:10]
-    df['hour'] = df['datetime'].astype(str).str[11:13].astype(int, errors='ignore')
-    df['min'] = df['datetime'].astype(str).str[14:16].astype(int, errors='ignore')
-    df['sec'] = df['duration (seconds)'].astype(float, errors='ignore')
+yeardf = df['datetime'].astype(str).str[:4]
+month = df['datetime'].astype(str).str[5:7]
+day = df['datetime'].astype(str).str[8:10]
+timehour = df['datetime'].astype(str).str[11:13]
+timehour = timehour.astype(int)
+timemin = df['datetime'].astype(str).str[14:16]
+timemin = timehour.astype(int)
+timeseconds = df['duration (seconds)'].astype(str)
+timeseconds = df['duration (seconds)'].astype(float)
+df["year"] = yeardf
+df["month"] = month
+df["day"] = day
+df["hour"] = timehour
+df["min"] = timemin
+df["sec"] = timeseconds
 
-    df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
-    df = df[df['datetime'].dt.year >= 2010]
-    df = df.sort_values(by='datetime')
+df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
 
-    return df
+df = df[(df['datetime'].dt.year >= 2010)]
 
+df = df.sort_values(by='datetime')
 
+df.to_csv("ufos.csv", index=False)
 
+df.to_csv('ufo_sightings_scrubbed.csv', index=False)
 
 listofdurationx = df["duration (seconds)"].tolist()
 listofduration = [float(x) for x in listofdurationx]
@@ -96,12 +102,12 @@ print(listofduration[:-1])
 
 def bargraphoftheyearandtimeview():
     years = df['year'].unique()
-    sightings = [df['year'].value_counts().get('2010', 0), df['year'].value_counts().get('2011', 0),
-                 df['year'].value_counts().get('2012', 0), df['year'].value_counts().get('2013', 0),
-                 df['year'].value_counts().get('2014', 0)]
-    print(sightings)
+    sightings = []
+    for year in years:
+        avgduration = df['year'].value_counts().get(year, 0)
+        sightings.append(avgduration)
     plt.bar(years, sightings)
-    plt.title('UFO sightings between years 2010 to 2014 inclusive')
+    plt.title('UFO sightings and years')
     plt.xlabel('years')
     plt.ylabel('Ufo Sightings')
     plt.show()
@@ -116,7 +122,7 @@ def bargraphoftheyearandaveragesightingstimes():
         duration.append(avgduration)
 
     plt.bar(years, duration)
-    plt.title('average duration of UFO sightings between years 2010 to 2014 inclusive')
+    plt.title('average duration of UFO sightings and years')
     plt.xlabel('years')
     plt.ylabel('average duration of UFO sightings(seconds)')
     plt.show()
@@ -190,15 +196,13 @@ def show_menu():
                   command=bargraphoftheyearandaveragesightingstimes)
     btn3 = Button(window, text="View Data", font=("Arial", 14), command=launch_data_viewer)
     btn4 = Button(window, text="goofy button", font=("Arial", 14), command=goofy)
-    btn5 = Button(window, text="Back", font=("Arial", 14), command=show_menu)
-    btn6 = Button(window, text="Exit", font=("Arial", 14), command=exit)
+    btn5 = Button(window, text="Exit", font=("Arial", 14), command=exit)
 
     btn1.pack(pady=30)
     btn2.pack(pady=30)
     btn3.pack(pady=30)
     btn4.pack(pady=30)
     btn5.pack(pady=30)
-    btn6.pack(pady=30)
 
 
 window = Tk()

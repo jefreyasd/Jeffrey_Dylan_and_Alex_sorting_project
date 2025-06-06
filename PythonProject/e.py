@@ -48,16 +48,16 @@ def delete():
     else:
         print("No matching row.")
 
-# while True:
-#     inputs =input('add or delete or save? ')
-#     if inputs =='add':
-#         add()
-#     elif inputs =='delete':
-#         delete()
-#     elif inputs =='save':
-#         pd.DataFrame(df).to_csv('ufo_sightings_scrubbed.csv')
-#         break
-#
+while True:
+    inputs =input('add or delete or save? ')
+    if inputs =='add':
+        add()
+    elif inputs =='delete':
+        delete()
+    elif inputs =='save':
+        pd.DataFrame(df).to_csv('ufo_sightings_scrubbed.csv')
+        break
+
 
 
 

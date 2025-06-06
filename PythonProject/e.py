@@ -11,16 +11,11 @@ from tkinter import *
 from playsound import playsound
 
 df = pd.read_csv("ufo_sightings_scrubbed.csv", dtype={0: str}, low_memory=False)
-df = df.loc[df['state'] == "ny"]
-if "comments" in df.columns:
-    df = df.drop('duration (hours/min)', axis=1)
-    df = df.drop('comments', axis=1)
-    df = df.drop('date posted', axis=1)
-    df = df.drop('latitude', axis=1)
-    df = df.drop('longitude ', axis=1)
+
 
 
 def add():
+    global df
     datetime_val = input('input date time in this format YYYY-MM-DD HOUR:MINUTE:SECOND : ')
     city = input('give city of sighting: ')
     state = input('give state of sighting: ')
@@ -37,57 +32,58 @@ def add():
         'duration (seconds)': duratz
     }
 
-
+    df.to_csv('ufo_sightings_scrubbed.csv', index=False)
 def delete():
+    global df
     datetime_val = input('input date time in this format YYYY-MM-DD HOUR:MINUTE:SECOND : ')
     city = input('give city of sighting: ')
     row_ = df[(df['datetime'] == datetime_val) & (df['city'] == city)]
     if not row_.empty:
         df.drop(row_.index[0], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        df.to_csv('ufo_sightings_scrubbed.csv', index=False)
         print("deleted.")
     else:
         print("No matching row.")
 
 while True:
-    inputs =input('add or delete or save? ')
-    if inputs =='add':
+    inputs = input('add or delete or save? ')
+    if inputs == 'add':
         add()
-    elif inputs =='delete':
+    elif inputs == 'delete':
         delete()
-    elif inputs =='save':
-        pd.DataFrame(df).to_csv('ufo_sightings_scrubbed.csv')
+    elif inputs == 'save':
+        df.to_csv('ufo_sightings_scrubbed.csv', index=False)
         break
 
 
+def load_and_process_df():
+    df = pd.read_csv("ufo_sightings_scrubbed.csv", dtype={0: str}, low_memory=False)
+    if "comments" in df.columns:
+        df = df.drop('duration (hours/min)', axis=1)
+        df = df.drop('comments', axis=1)
+        df = df.drop('date posted', axis=1)
+        df = df.drop('latitude', axis=1)
+        df = df.drop('longitude ', axis=1)
+
+    df = df[df['state'] == "ny"]
+
+    df['year'] = df['datetime'].astype(str).str[:4]
+    df['month'] = df['datetime'].astype(str).str[5:7]
+    df['day'] = df['datetime'].astype(str).str[8:10]
+    df['hour'] = df['datetime'].astype(str).str[11:13].astype(int, errors='ignore')
+    df['min'] = df['datetime'].astype(str).str[14:16].astype(int, errors='ignore')
+    df['sec'] = df['duration (seconds)'].astype(float, errors='ignore')
+
+    df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
+    df = df[df['datetime'].dt.year >= 2010]
+    df = df.sort_values(by='datetime')
+
+    return df
 
 
 
-df = pd.read_csv("ufo_sightings_scrubbed.csv", dtype={0: str}, low_memory=False)
-df = df.loc[df['state'] == "ny"]
 
-yeardf = df['datetime'].astype(str).str[:4]
-month = df['datetime'].astype(str).str[5:7]
-day = df['datetime'].astype(str).str[8:10]
-timehour = df['datetime'].astype(str).str[11:13]
-timehour = timehour.astype(int)
-timemin = df['datetime'].astype(str).str[14:16]
-timemin = timehour.astype(int)
-timeseconds = df['duration (seconds)'].astype(str)
-timeseconds = df['duration (seconds)'].astype(float)
-df["year"] = yeardf
-df["month"] = month
-df["day"] = day
-df["hour"] = timehour
-df["min"] = timemin
-df["sec"] = timeseconds
-
-df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
-
-df = df[(df['datetime'].dt.year >= 2010)]
-
-df = df.sort_values(by='datetime')
-
-df.to_csv("ufos.csv", index=False)
 listofdurationx = df["duration (seconds)"].tolist()
 listofduration = [float(x) for x in listofdurationx]
 for i in range(len(listofduration)):

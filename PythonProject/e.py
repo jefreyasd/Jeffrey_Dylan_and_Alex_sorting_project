@@ -188,6 +188,9 @@ def launch_data_viewer():
     Button(search_frame, text="Search", command=search_date).pack(side='left', padx=5)
 
 
+
+import pygame
+
 def goofy():
     for widget in window.winfo_children():
         widget.destroy()
@@ -195,10 +198,14 @@ def goofy():
     photozz = Label(window, image=window.photos)
     photozz.pack()
 
+    # Get path to the mp3 file
     script_dir = os.path.dirname(os.path.abspath(__file__))
     sound_path = os.path.join(script_dir, "tuah.mp3")
 
-    playsound(sound_path)
+    # Initialize pygame mixer and play sound
+    pygame.mixer.init()
+    pygame.mixer.music.load(sound_path)
+    pygame.mixer.music.play()
 
 def show_menu():
     for widget in window.winfo_children():

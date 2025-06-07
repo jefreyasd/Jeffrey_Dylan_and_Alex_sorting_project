@@ -198,11 +198,8 @@ def goofy():
     photozz = Label(window, image=window.photos)
     photozz.pack()
 
-    # Get path to the mp3 file
     script_dir = os.path.dirname(os.path.abspath(__file__))
     sound_path = os.path.join(script_dir, "tuah.mp3")
-
-    # Initialize pygame mixer and play sound
     pygame.mixer.init()
     pygame.mixer.music.load(sound_path)
     pygame.mixer.music.play()

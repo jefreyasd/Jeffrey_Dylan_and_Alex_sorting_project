@@ -235,3 +235,22 @@ start_button = Button(window, text="Start", font=("Arial", 16), command=show_men
 start_button.place(relx=0.5, rely=0.4, anchor='center')
 label.place(relx=0.5, rely=0.2, anchor='center')
 window.mainloop()
+
+def binarysearch(target, listofduration):
+    low = 0
+    high = len(listofduration)-1
+    while low <= high:
+        mid = (high+low)//2
+        if listofduration[mid] == target:
+            return mid
+        elif listofduration[mid] > target:
+            high = mid -1
+        elif listofduration[mid] < target:
+            low = mid + 1
+        if low == high:
+            print(-1)
+    if low == high:
+        print(-1)
+target = int(input("What number do you want? "))
+print(binarysearch(target, listofduration))
+
